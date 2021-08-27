@@ -1,0 +1,40 @@
+########
+# telegraf is not available as a syno package so download the tar and copy files
+# to right locations
+
+- name: Download telegraf
+  get_url:
+    url: https://dl.influxdata.com/telegraf/releases/telegraf-{{ telegraf_version }}_linux_amd64.tar.gz
+    dest: /tmp/
+    checksum: "{{ telegraf_tar_checksum }}"
+  register: download_telegraf
+
+- name: Untar file
+  ansible.builtin.unarchive:
+    src: /tmp/telegraf-{{ telegraf_version }}_linux_amd64.tar.gz
+    dest: /tmp/
+  when: download_telegraf.changed
+
+- name: Creates dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - /etc/telegraf
+    - /etc/telegraf/telegraf.d
+    - /var/log/telegraf
+
+- name: Install telegraf
+  ansible.builtin.copy:
+    src: "/tmp/telegraf-{{ telegraf_version }}/{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - {src: "etc/logrotate.d/telegraf", dest: "/etc/logrotate.d/telegraf", mode: 644}
+    - {src: "usr/bin/telegraf", dest: "/usr/bin/telegraf", mode: 755}
+    - {src: "usr/lib/telegraf/scripts/telegraf.service", dest: "/usr/lib/systemd/system/telegraf.service", mode: 644}
+
+- name: Enable service
+  ansible.builtin.systemd:
+    name: telegraf
+    enabled: true
