@@ -1,5 +1,7 @@
+---
 - include: install.yaml
 - include: setup-user.yaml
+- include: install-speedtest-cli.yaml
 
 - name: Copy config file
   ansible.builtin.copy:

@@ -1,0 +1,11 @@
+---
+- name: Install
+  get_url:
+    url: https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py
+    dest: /usr/local/bin/speedtest-cli
+    checksum: sha256:519d5938d78b8f911e8ac2843b61bf95c6351b6b5bb8c933c103f22274509d55
+
+- name: Set exec permission
+  ansible.builtin.file:
+    path: /usr/local/bin/speedtest-cli
+    mode: 0755
