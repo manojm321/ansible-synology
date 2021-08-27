@@ -3,7 +3,8 @@
   hosts: all
   become: yes
   roles:
-    tasks:
-    - name: Print all available facts
-      ansible.builtin.debug:
-        var: ansible_facts
+    - docker
+    # tasks:
+    # - name: Print all available facts
+    #   ansible.builtin.debug:
+    #     var: ansible_facts

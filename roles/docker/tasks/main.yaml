@@ -1,0 +1,20 @@
+########
+# docker socket is owned by root. Move it to a group so that other users can be
+# added later. Ex: telegraf
+
+- name: Users in docker group
+  shell: cat /etc/group | grep docker | sed 's/.*://'
+  register: docker
+
+- name: Split list
+  set_fact:
+    docker_list: "{{ docker.stdout.split(',') }}"
+
+- name: Create docker group
+  when: docker.stdout.find("root") == -1
+  command: /usr/syno/sbin/synogroup --add docker {{ ' '.join(docker_list) }} root
+
+- name: Move socket to docker group
+  file:
+    path: /var/run/docker.sock
+    group: docker
