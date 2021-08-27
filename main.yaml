@@ -4,6 +4,7 @@
   become: yes
   roles:
     - docker
+    - telegraf
     # tasks:
     # - name: Print all available facts
     #   ansible.builtin.debug:

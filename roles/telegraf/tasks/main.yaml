@@ -1,0 +1,98 @@
+########
+# telegraf is not available as a syno package so download the tar and copy files
+# to right locations
+
+- name: Download telegraf
+  get_url:
+    url: https://dl.influxdata.com/telegraf/releases/telegraf-{{ telegraf_version }}_linux_amd64.tar.gz
+    dest: /tmp/
+    checksum: "{{ telegraf_tar_checksum }}"
+  register: download_telegraf
+
+- name: Untar file
+  ansible.builtin.unarchive:
+    src: /tmp/telegraf-{{ telegraf_version }}_linux_amd64.tar.gz
+    dest: /tmp/
+  when: download_telegraf.changed
+
+- name: Creates dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - /etc/telegraf
+    - /etc/telegraf/telegraf.d
+    - /var/log/telegraf
+
+- name: Install telegraf
+  ansible.builtin.copy:
+    src: "/tmp/telegraf-{{ telegraf_version }}/{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - {src: "etc/logrotate.d/telegraf", dest: "/etc/logrotate.d/telegraf", mode: 644}
+    - {src: "usr/bin/telegraf", dest: "/usr/bin/telegraf", mode: 755}
+    - {src: "usr/lib/telegraf/scripts/telegraf.service", dest: "/usr/lib/systemd/system/telegraf.service", mode: 644}
+
+- name: Copy config file
+  ansible.builtin.copy:
+    src: "telegraf.conf"
+    dest: "/etc/telegraf/telegraf.conf"
+    mode: 0644
+  notify:
+    - reload telegraf
+
+- name: Copy output plugin config file
+  ansible.builtin.template:
+    src: "influxdb-output.conf"
+    dest: "/etc/telegraf/telegraf.d/influxdb-output.conf"
+    mode: 0644
+  notify:
+    - reload telegraf
+
+########
+# create telegraf user so that we can add it to wheel/docker groups. wheel to
+# allow password less sudo. docker - to access docker socket
+
+# create user
+- name: Read /etc/passwd file
+  shell: cat /etc/passwd
+  register: etc_passwd
+
+- name: Create user telegraf
+  when: etc_passwd.stdout.find("telegraf") == -1
+  # NB: args are [username passwd "full name" expired{0|1} mail AppPrivilege]
+  command: /usr/syno/sbin/synouser --add telegraf "" "" 0 "" 0
+  args:
+    creates: /volume1/homes/telegraf
+
+# add to wheel
+- name: Get list of wheel group users
+  shell: cat /etc/group | grep wheel | sed 's/.*://'
+  register: wheel
+
+- name: Split list
+  set_fact:
+    wheel_list: "{{ wheel.stdout.split(',') }}"
+
+- name: Add telegraf to wheel group
+  when: wheel.stdout.find("telegraf") == -1
+  command: /usr/syno/sbin/synogroup --member wheel {{ ' '.join(wheel_list) }} telegraf
+
+# add to docker group
+- name: Get list of members
+  shell: cat /etc/group | grep docker | sed 's/.*://'
+  register: docker
+
+- name: Split list
+  set_fact:
+    docker_list: "{{ docker.stdout.split(',') }}"
+
+- name: Add user to docker group
+  when: docker.stdout.find("telegraf") == -1
+  command: /usr/syno/sbin/synogroup --member docker {{ ' '.join(docker_list) }} telegraf
+
+- name: Enable service
+  ansible.builtin.systemd:
+    name: telegraf
+    enabled: true
