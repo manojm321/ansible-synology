@@ -1,0 +1,24 @@
+---
+- name: Create a network
+  community.docker.docker_network:
+    name: monitoring
+
+- name: Create a volume
+  community.docker.docker_volume:
+    name: grafana
+
+- name: Grafana container
+  community.docker.docker_container:
+    name: grafana
+    image: "grafana/grafana"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    volumes:
+      - "grafana:/var/lib/grafana"
+    network_mode: default
+    networks:
+      - name: monitoring
+    ports:
+      - "3000:3000"
