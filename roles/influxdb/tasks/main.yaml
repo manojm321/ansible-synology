@@ -1,0 +1,24 @@
+---
+- name: Create a network
+  community.docker.docker_network:
+    name: monitoring
+
+- name: Create a volume
+  community.docker.docker_volume:
+    name: influxdb2
+
+- name: Influxdb container
+  community.docker.docker_container:
+    name: influxdb
+    image: "influxdb:2.0.8"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    volumes:
+      - "influxdb2:/var/lib/influxdb2"
+    network_mode: default
+    networks:
+      - name: monitoring
+    ports:
+      - "8086:8086"
