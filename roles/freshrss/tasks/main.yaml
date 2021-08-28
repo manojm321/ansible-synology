@@ -1,0 +1,46 @@
+---
+- name: Create a network
+  community.docker.docker_network:
+    name: freshrss-network
+
+- name: Create a volume
+  community.docker.docker_volume:
+    name: freshrss-data
+
+- name: Mariadb container
+  community.docker.docker_container:
+    name: mariadb
+    image: "mariadb:10.6.3"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    volumes:
+      - "freshrss-data:/var/lib/mysql"
+    network_mode: default
+    networks:
+      - name: freshrss-network
+    env:
+      MYSQL_ROOT_PASSWORD: "{{ freshrss_mariadb_pass }}"
+      MYSQL_DATABASE: "freshrss"
+      MYSQL_USER: "freshrss"
+      MYSQL_PASSWORD: "{{ freshrss_mariadb_pass }}"
+
+- name: Freshrss container
+  community.docker.docker_container:
+    name: freshrss
+    image: "freshrss/freshrss"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    ports:
+      - "9001:80"
+    volumes:
+      - "freshrss-data:/var/www/FreshRSS/data"
+    network_mode: default
+    networks:
+      - name: freshrss-network
+    env:
+      CRON_MIN: "4,34"
+      TZ: "America/Los_Angeles"

@@ -1,11 +1,12 @@
 ---
 - name: Setup synlogy NAS
   hosts: all
-  become: yes
+  become: true
   roles:
     - python
     - docker
     - telegraf
+    - freshrss
     # tasks:
     # - name: Print all available facts
     #   ansible.builtin.debug:
