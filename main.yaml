@@ -9,6 +9,7 @@
     - freshrss
     - grafana
     - influxdb
+    - pihole
     # tasks:
     # - name: Print all available facts
     #   ansible.builtin.debug:

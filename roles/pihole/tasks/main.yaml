@@ -1,0 +1,27 @@
+---
+- name: Create a volume
+  community.docker.docker_volume:
+    name: pihole-data
+
+- name: Pi-hole container
+  community.docker.docker_container:
+    name: pihole
+    image: "pihole/pihole:latest"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    volumes:
+      - "pihole-data:/etc/pihole/"
+      - "pihole-data:/etc/dnsmasq.d/"
+    network_mode: default
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp"
+      - "8080:80/tcp"
+    env:
+      TZ: "America/Los_Angeles"
+      WEBPASSWORD: "{{ pihole_webadmin_pass }}"
+      ServerIP: "{{ ansible_facts['default_ipv4']['address'] }}"
+      DNSMASQ_LISTENING: local
