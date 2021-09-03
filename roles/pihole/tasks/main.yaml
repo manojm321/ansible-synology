@@ -25,3 +25,11 @@
       WEBPASSWORD: "{{ pihole_webadmin_pass }}"
       ServerIP: "{{ ansible_facts['default_ipv4']['address'] }}"
       DNSMASQ_LISTENING: local
+
+- name: Copy telegraf config file
+  ansible.builtin.template:
+    src: "telegraf-pihole.conf"
+    dest: "/etc/telegraf/telegraf.d/telegraf-pihole.conf"
+    mode: 0644
+  notify:
+    - reload telegraf

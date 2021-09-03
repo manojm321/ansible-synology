@@ -13,6 +13,7 @@
   ansible.builtin.unarchive:
     src: /tmp/telegraf-{{ telegraf_version }}_linux_amd64.tar.gz
     dest: /tmp/
+    remote_src: true
   when: download_telegraf.changed
 
 - name: Creates dirs
@@ -29,6 +30,7 @@
     src: "/tmp/telegraf-{{ telegraf_version }}/{{ item.src }}"
     dest: "{{ item.dest }}"
     mode: "{{ item.mode }}"
+    remote_src: true
   with_items:
     - {src: "etc/logrotate.d/telegraf", dest: "/etc/logrotate.d/telegraf", mode: 644}
     - {src: "usr/bin/telegraf", dest: "/usr/bin/telegraf", mode: 755}
