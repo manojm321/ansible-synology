@@ -3,13 +3,13 @@
   hosts: all
   become: true
   roles:
-    - python
-    - docker
-    - telegraf
-    - freshrss
-    - grafana
-    - influxdb
-    - pihole
+    - {role: python, tags: "python"}
+    - {role: docker, tags: "docker"}
+    - {role: telegraf, tags: "telegraf"}
+    - {role: freshrss, tags: "freshrss"}
+    - {role: grafana, tags: "grafana"}
+    - {role: influxdb, tags: "influxdb"}
+    - {role: pihole, tags: "pihole"}
     # tasks:
     # - name: Print all available facts
     #   ansible.builtin.debug:
