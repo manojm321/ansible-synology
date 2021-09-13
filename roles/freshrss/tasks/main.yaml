@@ -10,7 +10,7 @@
 - name: Mariadb container
   community.docker.docker_container:
     name: mariadb
-    image: "mariadb:10.6.3"
+    image: "mariadb"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     log_driver: "json-file"

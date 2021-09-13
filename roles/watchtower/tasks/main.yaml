@@ -1,0 +1,12 @@
+---
+- name: Watch Tower
+  community.docker.docker_container:
+    name: watchtower
+    image: "containrrr/watchtower"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    network_mode: default

@@ -10,6 +10,7 @@
     - {role: grafana, tags: "grafana"}
     - {role: influxdb, tags: "influxdb"}
     - {role: pihole, tags: "pihole"}
+    - {role: watchtower, tags: "watchtower"}
     # tasks:
     # - name: Print all available facts
     #   ansible.builtin.debug:

@@ -10,7 +10,7 @@
 - name: Influxdb container
   community.docker.docker_container:
     name: influxdb
-    image: "influxdb:2.0.8"
+    image: "influxdb"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     log_driver: "json-file"

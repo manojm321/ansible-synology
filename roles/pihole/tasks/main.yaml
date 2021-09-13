@@ -6,7 +6,7 @@
 - name: Pi-hole container
   community.docker.docker_container:
     name: pihole
-    image: "pihole/pihole:latest"
+    image: "pihole/pihole"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     log_driver: "json-file"
