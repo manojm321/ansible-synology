@@ -25,6 +25,8 @@
       WEBPASSWORD: "{{ pihole_webadmin_pass }}"
       ServerIP: "{{ ansible_facts['default_ipv4']['address'] }}"
       DNSMASQ_LISTENING: local
+    labels:
+      com.centurylinklabs.watchtower.lifecycle.post-update: "pihole --wild samsungcloudsolution.com taboola.com"
 
 - name: Copy telegraf config file
   ansible.builtin.template:

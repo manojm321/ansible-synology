@@ -10,3 +10,5 @@
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     network_mode: default
+    env:
+      WATCHTOWER_LIFECYCLE_HOOKS: "true"
