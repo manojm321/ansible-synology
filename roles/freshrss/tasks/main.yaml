@@ -29,7 +29,7 @@
 - name: Freshrss container
   community.docker.docker_container:
     name: freshrss
-    image: "freshrss/freshrss"
+    image: "manojm321/freshrss"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     log_driver: "json-file"
