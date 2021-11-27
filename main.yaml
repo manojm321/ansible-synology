@@ -11,6 +11,7 @@
     - {role: influxdb, tags: "influxdb"}
     - {role: pihole, tags: "pihole"}
     - {role: watchtower, tags: "watchtower"}
+    - {role: caddy, tags: "caddy"}
     # tasks:
     # - name: Print all available facts
     #   ansible.builtin.debug:

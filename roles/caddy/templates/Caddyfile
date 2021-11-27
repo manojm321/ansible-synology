@@ -1,0 +1,3 @@
+freshrss.manojm.me {
+   reverse_proxy freshrss:80
+}

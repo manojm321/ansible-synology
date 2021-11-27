@@ -1,0 +1,49 @@
+---
+- name: Create a network
+  community.docker.docker_network:
+    name: caddy-network
+
+- name: Create a volume
+  community.docker.docker_volume:
+    name: caddy
+
+# copy config file to the volume
+- name: Start a container
+  community.docker.docker_container:
+    name: container
+    image: alpine
+    detach: no
+    volumes:
+      - caddy:/data
+
+- name: Copy over the config
+  template: src=Caddyfile dest=/tmp/Caddyfile
+
+- name: Copy into the container
+  command: /usr/local/bin/docker cp /tmp/Caddyfile container:/data/
+
+- name: Remove the hanging container
+  community.docker.docker_container:
+    name: container
+    image: alpine
+    state: absent
+
+- name: Caddy container
+  community.docker.docker_container:
+    name: caddy
+    image: manojm321/caddy
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "caddy:/data"
+    network_mode: default
+    networks:
+      - name: caddy-network
+    ports:
+      - "80:80"
+      - "443:443"
+      - "2019:2019"
+    command: caddy run --config /data/Caddyfile --adapter caddyfile

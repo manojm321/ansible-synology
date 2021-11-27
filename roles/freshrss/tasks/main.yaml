@@ -34,13 +34,12 @@
     container_default_behavior: no_defaults
     log_driver: "json-file"
     log_options: "max-size=10m"
-    ports:
-      - "9001:80"
     volumes:
       - "freshrss-data:/var/www/FreshRSS/data"
     network_mode: default
     networks:
       - name: freshrss-network
+      - name: caddy-network
     env:
       CRON_MIN: "4,34"
       TZ: "America/Los_Angeles"
