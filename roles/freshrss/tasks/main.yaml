@@ -41,5 +41,5 @@
       - name: freshrss-network
       - name: caddy-network
     env:
-      CRON_MIN: "4,34"
+      CRON_MIN: "4"
       TZ: "America/Los_Angeles"
