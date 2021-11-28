@@ -47,6 +47,7 @@
       - "80:80"
       - "443:443"
       - "2019:2019"
+      - "2020:2020"
     command: caddy run --config /data/Caddyfile --adapter caddyfile
 
 - name: Maybe restart
@@ -55,3 +56,12 @@
     restart: true
     container_default_behavior: no_defaults
   when: config.changed
+
+- name: collect metrics
+  ansible.builtin.copy:
+    src: "telegraf-caddy.conf"
+    dest: "/etc/telegraf/telegraf.d/telegraf-caddy.conf"
+    mode: 0644
+  notify:
+    - reload telegraf
+  tags: metric

@@ -1,7 +1,14 @@
+# If you change the order of server block, update telegraf-caddy.conf.
+
+# srv0: metrics
+:2020 { metrics }
+
+# srv1: freshrss
 freshrss.{{ domain_name }} {
    reverse_proxy freshrss:80
 }
 
+# srv2: grafana
 grafana.{{ domain_name }} {
   route /auth* {
     authp {
