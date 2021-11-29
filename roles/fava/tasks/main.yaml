@@ -1,0 +1,20 @@
+---
+- name: Create a volume
+  community.docker.docker_volume:
+    name: fava
+
+- name: Start container
+  community.docker.docker_container:
+    name: fava
+    image: "yegle/fava"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    volumes:
+      - "fava:/data"
+    network_mode: default
+    networks:
+      - name: caddy-network
+    env:
+      BEANCOUNT_FILE: /data/file.bean

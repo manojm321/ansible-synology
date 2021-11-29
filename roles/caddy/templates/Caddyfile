@@ -1,17 +1,24 @@
 # If you change the order of server block, update telegraf-caddy.conf.
 
 # srv0: metrics
-:2020 { metrics }
+:2020 {
+  metrics
+}
 
 # srv1: freshrss
 freshrss.{{ domain_name }} {
    reverse_proxy freshrss:80
 }
 
-# srv2: grafana
-grafana.{{ domain_name }} {
-  route /auth* {
+# srv2: auth
+auth.{{ domain_name }} {
+  route {
     authp {
+      crypto key sign-verify {{ auth_secret_pass }}
+      cookie domain {{ domain_name }}
+      # 30 days
+      crypto default token lifetime 2592000
+      cookie lifetime 2592000
       backends {
         google_oauth2_backend {
           method oauth2
@@ -27,22 +34,38 @@ grafana.{{ domain_name }} {
         match origin google
         match email {{ manoj_email }}
         action add role authp/admin
-        ui link "Grafana" "/d/OC7GD_7nz/home?orgId=1" icon "las la-chart-pie"
+        ui link "Grafana" "grafana.{{ domain_name }}/d/OC7GD_7nz/home?orgId=1" icon "las la-chart-pie"
+        ui link "Finance" "finance.{{ domain_name }}/beancount/income_statement/" icon "las la-coins"
       }
       transform user {
         match origin google
         match email {{ monica_email }}
         action add role authp/admin
-        ui link "Grafana" "/d/OC7GD_7nz/home?orgId=1" icon "las la-chart-pie"
+        ui link "Grafana" "grafana.{{ domain_name }}/d/OC7GD_7nz/home?orgId=1" icon "las la-chart-pie"
+        ui link "Finance" "finance.{{ domain_name }}/beancount/income_statement/" icon "las la-coins"
       }
     }
   }
+}
 
+# srv3: grafana
+grafana.{{ domain_name }} {
   route {
     authorize {
       primary yes
+      crypto key verify {{ auth_secret_pass }}
+      set auth url https://auth.{{ domain_name }}
       allow roles authp/admin
     }
     reverse_proxy grafana:3000
+  }
+}
+
+# srv4: finance
+finance.{{ domain_name }} {
+  route {
+    # A bare authorize directive references back to the authorize with `primary yes`.
+    authorize
+    reverse_proxy fava:5000
   }
 }
