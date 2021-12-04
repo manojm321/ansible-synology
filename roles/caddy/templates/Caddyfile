@@ -69,3 +69,8 @@ finance.{{ domain_name }} {
     reverse_proxy fava:5000
   }
 }
+
+# srv5: pass
+pass.{{ domain_name }} {
+   reverse_proxy bitwarden-nginx:8080
+}

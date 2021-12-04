@@ -12,6 +12,7 @@
     - {role: pihole, tags: "pihole"}
     - {role: watchtower, tags: "watchtower"}
     - {role: fava, tags: "fava"}
+    - {role: bitwarden, tags: "bitwarden"}
     - {role: caddy, tags: "caddy"}
     # tasks:
     # - name: Print all available facts

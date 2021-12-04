@@ -1,0 +1,11 @@
+# curl -Lso bitwarden.sh https://go.btwrdn.co/bw-sh && chmod 700 bitwarden.sh
+# ./bitwarden.sh start
+# look in vars for ID and key
+
+- name: Put nginx in caddy network
+  community.docker.docker_container:
+    name: bitwarden-nginx
+    networks:
+      - name:  caddy-network
+    container_default_behavior: no_defaults
+
