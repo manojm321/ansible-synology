@@ -25,3 +25,9 @@
     env:
       # 7 days
       INFLUXD_SESSION_LENGTH: "10080"
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:8086/ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
