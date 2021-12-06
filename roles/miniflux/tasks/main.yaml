@@ -48,3 +48,4 @@
       CREATE_ADMIN: "1"
       ADMIN_USERNAME: "admin"
       ADMIN_PASSWORD: "{{ miniflux_admin_pass }}"
+      FETCH_YOUTUBE_WATCH_TIME: "true"
