@@ -13,6 +13,7 @@
     - {role: watchtower, tags: "watchtower"}
     - {role: fava, tags: "fava"}
     - {role: bitwarden, tags: "bitwarden"}
+    - {role: miniflux, tags: "miniflux"}
     - {role: caddy, tags: "caddy"}
     # tasks:
     # - name: Print all available facts

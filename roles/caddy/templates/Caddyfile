@@ -74,3 +74,8 @@ finance.{{ domain_name }} {
 pass.{{ domain_name }} {
    reverse_proxy bitwarden-nginx:8080
 }
+
+# srv6: pass
+miniflux.{{ domain_name }} {
+   reverse_proxy miniflux:8080
+}

@@ -1,0 +1,50 @@
+---
+- name: Create a network
+  community.docker.docker_network:
+    name: miniflux-network
+
+- name: Create a volume
+  community.docker.docker_volume:
+    name: miniflux-data
+
+- name: Postgres container
+  community.docker.docker_container:
+    name: miniflux-db
+    image: "postgres"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    volumes:
+      - "miniflux-data:/var/lib/postgresql/data"
+    network_mode: default
+    networks:
+      - name: miniflux-network
+    env:
+      POSTGRES_USER: "miniflux"
+      POSTGRES_PASSWORD: "{{ miniflux_postgres_pass }}"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "miniflux"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+- name: Miniflux container
+  community.docker.docker_container:
+    name: miniflux
+    image: "miniflux/miniflux"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    network_mode: default
+    networks:
+      - name: miniflux-network
+      - name: caddy-network
+    env:
+      DATABASE_URL: "postgres://miniflux:{{ miniflux_postgres_pass }}@miniflux-db/miniflux?sslmode=disable"
+      RUN_MIGRATIONS: "1"
+      CREATE_ADMIN: "1"
+      ADMIN_USERNAME: "admin"
+      ADMIN_PASSWORD: "{{ miniflux_admin_pass }}"
