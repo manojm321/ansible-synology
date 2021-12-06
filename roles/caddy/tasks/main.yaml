@@ -21,7 +21,6 @@
 
 - name: Copy into the container
   command: /usr/local/bin/docker cp /tmp/Caddyfile container:/data/
-  register: config
 
 - name: Remove the hanging container
   community.docker.docker_container:
@@ -48,14 +47,7 @@
       - "443:443"
       - "2019:2019"
       - "2020:2020"
-    command: caddy run --config /data/Caddyfile --adapter caddyfile
-
-- name: Maybe restart
-  community.docker.docker_container:
-    name: caddy
-    restart: true
-    container_default_behavior: no_defaults
-  when: config.changed
+    command: caddy run --watch --config /data/Caddyfile --adapter caddyfile
 
 - name: collect metrics
   ansible.builtin.copy:
