@@ -50,9 +50,9 @@
     command: caddy run --watch --config /data/Caddyfile --adapter caddyfile
 
 - name: collect metrics
-  ansible.builtin.copy:
-    src: "telegraf-caddy.conf"
-    dest: "/etc/telegraf/telegraf.d/telegraf-caddy.conf"
+  ansible.builtin.template:
+    src: "telegraf-caddy-output.conf"
+    dest: "/etc/telegraf/telegraf.d/telegraf-caddy-output.conf"
     mode: 0644
   notify:
     - reload telegraf
