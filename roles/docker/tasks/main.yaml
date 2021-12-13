@@ -18,3 +18,12 @@
   file:
     path: /var/run/docker.sock
     group: docker
+
+# Docker looks for /etc/os-release file
+- name: Synlink /etc/VERSION
+  ansible.builtin.file:
+    src: /etc/VERSION
+    dest: /usr/lib/os-release
+    owner: root
+    group: root
+    state: link
