@@ -5,12 +5,7 @@
   metrics
 }
 
-# srv1: freshrss
-freshrss.{{ domain_name }} {
-   reverse_proxy freshrss:80
-}
-
-# srv2: auth
+# srv1: auth
 auth.{{ domain_name }} {
   route {
     authp {
@@ -48,7 +43,7 @@ auth.{{ domain_name }} {
   }
 }
 
-# srv3: grafana
+# srv2: grafana
 grafana.{{ domain_name }} {
   route {
     authorize {
@@ -61,7 +56,7 @@ grafana.{{ domain_name }} {
   }
 }
 
-# srv4: finance
+# srv3: finance
 finance.{{ domain_name }} {
   route {
     # A bare authorize directive references back to the authorize with `primary yes`.
@@ -70,12 +65,12 @@ finance.{{ domain_name }} {
   }
 }
 
-# srv5: pass
+# srv4: pass
 pass.{{ domain_name }} {
    reverse_proxy bitwarden-nginx:8080
 }
 
-# srv6: pass
+# srv5: miniflux
 miniflux.{{ domain_name }} {
    reverse_proxy miniflux:8080
 }

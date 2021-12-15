@@ -7,7 +7,6 @@
     - {role: python, tags: "python"}
     - {role: docker, tags: "docker"}
     - {role: telegraf, tags: "telegraf"}
-    - {role: freshrss, tags: "freshrss"}
     - {role: grafana, tags: "grafana"}
     - {role: influxdb, tags: "influxdb"}
     - {role: pihole, tags: "pihole"}
