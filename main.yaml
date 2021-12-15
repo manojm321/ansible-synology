@@ -3,6 +3,7 @@
   hosts: all
   become: true
   roles:
+    - {role: system, tags: "system"}
     - {role: python, tags: "python"}
     - {role: docker, tags: "docker"}
     - {role: telegraf, tags: "telegraf"}
