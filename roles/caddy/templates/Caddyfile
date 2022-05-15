@@ -74,3 +74,12 @@ pass.{{ domain_name }} {
 miniflux.{{ domain_name }} {
    reverse_proxy miniflux:8080
 }
+
+# srv6: docs
+docs.{{ domain_name }} {
+  route {
+    # A bare authorize directive references back to the authorize with `primary yes`.
+    authorize
+    reverse_proxy paperless-ng:8000
+  }
+}

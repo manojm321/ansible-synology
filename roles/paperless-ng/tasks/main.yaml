@@ -1,0 +1,70 @@
+- name: Create a network
+  community.docker.docker_network:
+    name: paperless-ng
+
+- name: Install broker
+  community.docker.docker_container:
+    name: paperless-ng-broker
+    image: redis
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    network_mode: default
+    networks:
+      - name: paperless-ng
+
+- name: Create a volume
+  community.docker.docker_volume:
+    name: paperless-ng-db
+
+- name: Install postgres
+  community.docker.docker_container:
+    name: paperless-ng-db
+    image: postgres
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    volumes:
+      - "paperless-ng-db:/var/lib/postgresql/data"
+    network_mode: default
+    networks:
+      - name: paperless-ng
+    env:
+      POSTGRES_USER: "paperless"
+      POSTGRES_PASSWORD: "{{ paperless_ng_db_pass }}"
+      POSTGRES_DB: "paperless"
+
+- name: Create a volume
+  community.docker.docker_volume:
+    name: paperless-ng-data
+
+- name: "Install paperless-ng"
+  community.docker.docker_container:
+    name: paperless-ng
+    image: jonaswinkler/paperless-ng
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    volumes:
+      - paperless-ng-data:/usr/src/paperless
+    network_mode: default
+    networks:
+      - name: paperless-ng
+      - name: caddy-network
+    env:
+      PAPERLESS_REDIS: redis://paperless-ng-broker:6379
+      PAPERLESS_DBHOST: paperless-ng-db
+      PAPERLESS_SECRET_KEY: "{{ paperless_ng_secret_key }}"
+      PAPERLESS_TIME_ZONE: "America/Los_Angeles"
+      PAPERLESS_DBPASS: "{{ paperless_ng_db_pass }}"
+      PAPERLESS_ADMIN_USER: "{{ paperless_ng_admin_name }}"
+      PAPERLESS_ADMIN_PASSWORD: "{{ paperless_ng_admin_pass }}"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
