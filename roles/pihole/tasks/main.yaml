@@ -26,7 +26,7 @@
       ServerIP: "{{ ansible_facts['default_ipv4']['address'] }}"
       DNSMASQ_LISTENING: local
     labels:
-      com.centurylinklabs.watchtower.lifecycle.post-update: "pihole -b cdn.samsungcloudsolution.com --wild taboola.com"
+      com.centurylinklabs.watchtower.lifecycle.post-update: "pihole -b cdn.samsungcloudsolution.com --wild taboola.com --wild ndtv.com"
 
 - name: Copy telegraf config file
   ansible.builtin.template:

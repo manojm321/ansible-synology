@@ -1,5 +1,6 @@
 [nas]
-192.168.1.14
+192.168.10.7
 
 [nas:vars]
 ansible_user=manojm321
+ansible_port=34
