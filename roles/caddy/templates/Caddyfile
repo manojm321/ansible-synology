@@ -65,17 +65,12 @@ finance.{{ domain_name }} {
   }
 }
 
-# srv4: pass
-pass.{{ domain_name }} {
-   reverse_proxy bitwarden-nginx:8080
-}
-
-# srv5: miniflux
+# srv4: miniflux
 miniflux.{{ domain_name }} {
    reverse_proxy miniflux:8080
 }
 
-# srv6: docs
+# srv5: docs
 docs.{{ domain_name }} {
   route {
     # A bare authorize directive references back to the authorize with `primary yes`.

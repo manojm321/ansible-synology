@@ -12,7 +12,6 @@
     - {role: pihole, tags: "pihole"}
     - {role: watchtower, tags: "watchtower"}
     - {role: fava, tags: "fava"}
-    - {role: bitwarden, tags: "bitwarden"}
     - {role: miniflux, tags: "miniflux"}
     - {role: paperless-ng, tags: "paperless-ng"}
     - {role: caddy, tags: "caddy"}
