@@ -40,3 +40,4 @@
   ansible.builtin.systemd:
     name: telegraf
     enabled: true
+    masked: no
