@@ -57,3 +57,11 @@
   notify:
     - reload telegraf
   tags: metric
+
+- name: Copy telegraf config file
+  ansible.builtin.copy:
+    src: "telegraf-caddy.conf"
+    dest: "/etc/telegraf/telegraf.d/telegraf-caddy.conf"
+    mode: 0644
+  notify:
+    - reload telegraf
