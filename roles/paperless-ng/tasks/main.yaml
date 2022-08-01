@@ -54,6 +54,8 @@
     networks:
       - name: paperless-ng
       - name: caddy-network
+    ports:
+      - "8000:8000"
     env:
       PAPERLESS_REDIS: redis://paperless-ng-broker:6379
       PAPERLESS_DBHOST: paperless-ng-db

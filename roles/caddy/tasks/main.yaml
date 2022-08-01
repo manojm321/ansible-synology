@@ -31,7 +31,7 @@
 - name: Caddy container
   community.docker.docker_container:
     name: caddy
-    image: manojm321/caddy
+    image: manojm321/caddy:v2
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     log_driver: "json-file"
