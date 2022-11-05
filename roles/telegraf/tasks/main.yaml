@@ -16,4 +16,10 @@
     dest: "/etc/telegraf/telegraf.d/influxdb-output.conf"
     mode: 0644
   notify:
+    - systemd reload
     - reload telegraf
+
+- name: Make sure a service unit is running
+  ansible.builtin.systemd:
+    state: started
+    name: telegraf
