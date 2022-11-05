@@ -21,7 +21,7 @@
 - name: Install postgres
   community.docker.docker_container:
     name: paperless-ng-db
-    image: postgres
+    image: postgres:14
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     log_driver: "json-file"
