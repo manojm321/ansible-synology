@@ -27,3 +27,17 @@
     owner: root
     group: root
     state: link
+
+- name: Install volume size metrics script
+  ansible.builtin.copy:
+    src: "docker-volume-size-metrics.sh"
+    dest: "/usr/bin/docker-volume-size-metrics"
+    mode: "755"
+
+- name: Copy telegraf config file
+  ansible.builtin.template:
+    src: "telegraf-docker-volume-size-metrics.conf"
+    dest: "/etc/telegraf/telegraf.d/telegraf-docker-volume-size-metrics.conf"
+    mode: 0644
+  notify:
+    - reload telegraf
