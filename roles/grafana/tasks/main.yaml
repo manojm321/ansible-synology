@@ -53,7 +53,7 @@
       - "grafana:/var/lib/grafana"
       - "grafana-config:/etc/grafana"
     labels:
-      docker-volume-backup.stop-during-backup: "true"
+      docker-volume-backup.stop-during-backup: "grafana"
     network_mode: default
     networks:
       - name: monitoring

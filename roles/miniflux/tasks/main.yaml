@@ -35,7 +35,7 @@
       retries: 3
       start_period: 30s
     labels:
-      docker-volume-backup.stop-during-backup: "true"
+      docker-volume-backup.stop-during-backup: "miniflux-data"
 
 - name: Miniflux container
   community.docker.docker_container:

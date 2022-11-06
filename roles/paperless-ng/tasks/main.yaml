@@ -41,16 +41,16 @@
       POSTGRES_PASSWORD: "{{ paperless_ng_db_pass }}"
       POSTGRES_DB: "paperless"
     labels:
-      docker-volume-backup.stop-during-backup: "true"
+      docker-volume-backup.stop-during-backup: "paperless-ng-db"
 
 - name: Create a volume
   community.docker.docker_volume:
-    name: paperless-ng-data
+    name: paperless-ng-media
 
 - include_role:
     name: backup
   vars:
-    volume_name: paperless-ng-data
+    volume_name: paperless-ng-media
 
 - name: "Install paperless-ng"
   community.docker.docker_container:
@@ -61,7 +61,7 @@
     log_driver: "json-file"
     log_options: "max-size=10m"
     volumes:
-      - paperless-ng-data:/usr/src/paperless
+      - paperless-ng-media:/usr/src/paperless/media
     network_mode: default
     networks:
       - name: paperless-ng
@@ -83,4 +83,4 @@
       retries: 5
       start_period: 30s
     labels:
-      docker-volume-backup.stop-during-backup: "true"
+      docker-volume-backup.stop-during-backup: "paperless-ng-media"
