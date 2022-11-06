@@ -58,6 +58,8 @@
     networks:
       - name: monitoring
       - name: caddy-network
+    ports:
+      - "3000:3000/tcp"
 
 - name: Maybe restart grafana
   community.docker.docker_container:
