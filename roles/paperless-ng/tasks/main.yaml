@@ -18,6 +18,11 @@
   community.docker.docker_volume:
     name: paperless-ng-db
 
+- include_role:
+    name: backup
+  vars:
+    volume_name: paperless-ng-db
+
 - name: Install postgres
   community.docker.docker_container:
     name: paperless-ng-db
@@ -35,10 +40,17 @@
       POSTGRES_USER: "paperless"
       POSTGRES_PASSWORD: "{{ paperless_ng_db_pass }}"
       POSTGRES_DB: "paperless"
+    labels:
+      docker-volume-backup.stop-during-backup: "true"
 
 - name: Create a volume
   community.docker.docker_volume:
     name: paperless-ng-data
+
+- include_role:
+    name: backup
+  vars:
+    volume_name: paperless-ng-data
 
 - name: "Install paperless-ng"
   community.docker.docker_container:
@@ -70,3 +82,5 @@
       timeout: 10s
       retries: 5
       start_period: 30s
+    labels:
+      docker-volume-backup.stop-during-backup: "true"

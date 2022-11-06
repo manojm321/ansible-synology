@@ -1,0 +1,30 @@
+- name: Creates backups directory
+  file:
+    path: /var/services/homes/manojm321/backups
+    state: directory
+
+- name: Creates {{ volume_name }} directory
+  file:
+    path: /var/services/homes/manojm321/backups/{{ volume_name }}
+    state: directory
+  when: volume_name is defined
+
+- name: backup {{ volume_name }} volume
+  community.docker.docker_container:
+    name: "{{ volume_name }}-backup"
+    image: "offen/docker-volume-backup:latest"
+    restart_policy: always
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    volumes:
+      - "{{ volume_name }}:/backup/{{ volume_name }}:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/var/services/homes/manojm321/backups/{{ volume_name }}:/archive"
+    network_mode: default
+    env:
+      BACKUP_FILENAME: "%Y-%m-%dT%H-%M-%S.tar.gz"
+      BACKUP_LATEST_SYMLINK: latest.tar.gz
+      # this location is backed up by regular synology backups
+      BACKUP_RETENTION_DAYS: "2"
+  when: volume_name is defined

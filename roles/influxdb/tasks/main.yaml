@@ -7,6 +7,11 @@
   community.docker.docker_volume:
     name: influxdb2
 
+- include_role:
+    name: backup
+  vars:
+    volume_name: influxdb2
+
 - name: Influxdb container
   community.docker.docker_container:
     name: influxdb
@@ -31,3 +36,5 @@
       timeout: 10s
       retries: 3
       start_period: 30s
+    labels:
+      docker-volume-backup.stop-during-backup: "true"

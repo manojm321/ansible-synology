@@ -7,6 +7,11 @@
   community.docker.docker_volume:
     name: grafana
 
+- include_role:
+    name: backup
+  vars:
+    volume_name: grafana
+
 - name: Create a volume
   community.docker.docker_volume:
     name: grafana-config
@@ -47,6 +52,8 @@
     volumes:
       - "grafana:/var/lib/grafana"
       - "grafana-config:/etc/grafana"
+    labels:
+      docker-volume-backup.stop-during-backup: "true"
     network_mode: default
     networks:
       - name: monitoring
