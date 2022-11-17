@@ -2,6 +2,8 @@
 # ansible-vault encrypt_string --vault-password-file <pass-file> --name=<var-name> 'secret' | pbcopy
 telegraf_version: "1.20.3"
 telegraf_tar_checksum: "sha256:47d0ab2c9fa206eb362dc6efaa1e1235bb5e8685992f09035cece5329b53e799"
+macvlan_ip_pihole: "192.168.10.199"
+macvlan_ip_caddy: "192.168.10.200"
 telegraf_influxdb_token: !vault |
           $ANSIBLE_VAULT;1.1;AES256
           63333066333661636363663164653635353030386131303335376133643037353733373465383436

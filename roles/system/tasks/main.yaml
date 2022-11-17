@@ -3,3 +3,57 @@
     name: fs.file-max
     value: '500000'
     state: present
+
+- name: Create a network with custom IPAM config
+  community.docker.docker_network:
+    name: macvlan
+    driver: macvlan
+    driver_options:
+      parent: eth1
+    ipam_config:
+      - subnet: 192.168.10.0/24
+        gateway: 192.168.10.1
+        iprange: 192.168.10.192/27
+        aux-address:
+          pihole: "{{macvlan_ip_pihole}}"
+          caddy: "{{macvlan_ip_caddy}}"
+
+- name: create macvlan
+  shell: ip link add macvlan0 link eth1 type macvlan mode bridge
+  when: "'macvlan0' not in ansible_interfaces"
+
+- name: associate subnet
+  shell: ip addr add 192.168.10.192/27 macvlan0
+  when: "'macvlan0' not in ansible_interfaces"
+
+- name: Script to create macvlan
+  copy:
+    mode: '+x'
+    dest: /usr/local/bin/macvlan.sh
+    content: |
+      #!/usr/bin/env bash
+      ip link add macvlan0 link eth1 type macvlan mode bridge
+      ip addr add 192.168.10.192/27 macvlan0
+      ip link set macvlan0 up
+      ifconfig macvlan0
+
+- name: create a systemd file
+  copy:
+    mode: '0644'
+    dest: /usr/lib/systemd/system/macvlan.service
+    content: |
+      [Unit]
+      After=network.target
+
+      [Service]
+      ExecStart=/usr/local/bin/macvlan.sh
+
+      [Install]
+      WantedBy=default.target
+
+- name: Enable service
+  ansible.builtin.systemd:
+    name: macvlan
+    enabled: true
+    masked: no
+
