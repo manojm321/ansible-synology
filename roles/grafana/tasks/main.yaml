@@ -57,7 +57,7 @@
     network_mode: default
     networks:
       - name: monitoring
-      - name: caddy-network
+      - name: macvlan
     ports:
       - "3000:3000/tcp"
 

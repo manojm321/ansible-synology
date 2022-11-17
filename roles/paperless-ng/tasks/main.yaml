@@ -65,7 +65,7 @@
     network_mode: default
     networks:
       - name: paperless-ng
-      - name: caddy-network
+      - name: macvlan
     ports:
       - "8000:8000"
     env:

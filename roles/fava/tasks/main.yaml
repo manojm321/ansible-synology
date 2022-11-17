@@ -15,6 +15,6 @@
       - "fava:/data"
     network_mode: default
     networks:
-      - name: caddy-network
+      - name: macvlan
     env:
       BEANCOUNT_FILE: /data/file.bean

@@ -48,7 +48,7 @@
     network_mode: default
     networks:
       - name: miniflux-network
-      - name: caddy-network
+      - name: macvlan
     env:
       DATABASE_URL: "postgres://miniflux:{{ miniflux_postgres_pass }}@miniflux-db/miniflux?sslmode=disable"
       RUN_MIGRATIONS: "1"

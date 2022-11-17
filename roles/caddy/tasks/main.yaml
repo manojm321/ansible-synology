@@ -1,8 +1,4 @@
 ---
-- name: Create a network
-  community.docker.docker_network:
-    name: caddy-network
-
 - name: Create a volume
   community.docker.docker_volume:
     name: caddy
@@ -41,7 +37,8 @@
       - "caddy:/data"
     network_mode: default
     networks:
-      - name: caddy-network
+      - name: macvlan
+        ipv4_address: "{{ macvlan_ip_caddy }}"
     ports:
       - "80:80"
       - "443:443"
