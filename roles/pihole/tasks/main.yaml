@@ -3,6 +3,10 @@
   community.docker.docker_volume:
     name: pihole-data
 
+- name: Create a volume
+  community.docker.docker_volume:
+    name: pihole-dnsmasq
+
 - name: Pi-hole container
   community.docker.docker_container:
     name: pihole
@@ -11,9 +15,10 @@
     container_default_behavior: no_defaults
     log_driver: "json-file"
     log_options: "max-size=10m"
+    capabilities: 'NET_ADMIN'
     volumes:
       - "pihole-data:/etc/pihole/"
-      - "pihole-data:/etc/dnsmasq.d/"
+      - "pihole-dnsmasq:/etc/dnsmasq.d/"
     network_mode: default
     ports:
       - "53:53/tcp"
@@ -23,10 +28,14 @@
     env:
       TZ: "America/Los_Angeles"
       WEBPASSWORD: "{{ pihole_webadmin_pass }}"
-      ServerIP: "{{ ansible_facts['default_ipv4']['address'] }}"
+      ServerIP: "{{ macvlan_ip_pihole }}"
       DNSMASQ_LISTENING: local
-    labels:
-      com.centurylinklabs.watchtower.lifecycle.post-update: "pihole -b cdn.samsungcloudsolution.com --wild taboola.com --wild ndtv.com"
+    networks:
+      - name: macvlan
+        ipv4_address: "{{ macvlan_ip_pihole }}"
+    dns_servers:
+      - 127.0.0.1
+      - 8.8.8.8
 
 - name: Copy telegraf config file
   ansible.builtin.template:
