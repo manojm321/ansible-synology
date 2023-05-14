@@ -14,7 +14,7 @@
       - subnet: 192.168.10.0/24
         gateway: 192.168.10.1
         iprange: 192.168.10.192/27
-        aux-address:
+        aux_addresses:
           pihole: "{{macvlan_ip_pihole}}"
           caddy: "{{macvlan_ip_caddy}}"
 
@@ -23,7 +23,7 @@
   when: "'macvlan0' not in ansible_interfaces"
 
 - name: associate subnet
-  shell: ip addr add 192.168.10.192/27 macvlan0
+  shell: ip addr add 192.168.10.192/27 dev macvlan0
   when: "'macvlan0' not in ansible_interfaces"
 
 - name: Script to create macvlan
@@ -33,7 +33,7 @@
     content: |
       #!/usr/bin/env bash
       ip link add macvlan0 link eth1 type macvlan mode bridge
-      ip addr add 192.168.10.192/27 macvlan0
+      ip addr add 192.168.10.192/27 dev macvlan0
       ip link set macvlan0 up
       ifconfig macvlan0
 
