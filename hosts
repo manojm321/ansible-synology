@@ -1,6 +1,13 @@
 [nas]
-mm_cloud.lan
+192.168.1.5
 
 [nas:vars]
 ansible_user=manojm321
 ansible_port=34
+
+[pi]
+192.168.1.14
+
+[pi:vars]
+ansible_user=pi
+ansible_port=22
