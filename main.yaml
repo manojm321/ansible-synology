@@ -1,6 +1,6 @@
 ---
 - name: Setup synlogy NAS
-  hosts: nas
+  hosts: all
   become: true
   roles:
     - {role: system, tags: "system"}
