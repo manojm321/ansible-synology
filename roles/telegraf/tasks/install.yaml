@@ -41,3 +41,4 @@
     name: telegraf
     enabled: true
     masked: no
+    daemon_reload: true
