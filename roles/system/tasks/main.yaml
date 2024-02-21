@@ -44,9 +44,11 @@
     dest: /usr/lib/systemd/system/macvlan.service
     content: |
       [Unit]
-      After=network.target
+      Wants=network-online.target
+      After=network-online.target
 
       [Service]
+      Type=oneshot
       ExecStart=/usr/local/bin/macvlan.sh
 
       [Install]
