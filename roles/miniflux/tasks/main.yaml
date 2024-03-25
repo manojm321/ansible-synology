@@ -56,3 +56,4 @@
       ADMIN_USERNAME: "admin"
       ADMIN_PASSWORD: "{{ miniflux_admin_pass }}"
       FETCH_YOUTUBE_WATCH_TIME: "true"
+      POLLING_PARSING_ERROR_LIMIT: "100"
