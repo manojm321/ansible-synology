@@ -46,6 +46,8 @@
     log_driver: "json-file"
     log_options: "max-size=10m"
     network_mode: default
+    ports:
+      - "8081:8080/tcp"
     networks:
       - name: miniflux-network
       - name: macvlan
