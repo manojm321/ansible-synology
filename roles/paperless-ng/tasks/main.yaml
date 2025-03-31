@@ -52,16 +52,35 @@
   vars:
     volume_name: paperless-ng-media
 
-- name: "Install paperless-ng"
+- name: Create a volume
+  community.docker.docker_volume:
+    name: paperless-ng-data
+
+- include_role:
+    name: backup
+  vars:
+    volume_name: paperless-ng-data
+
+- name: Create a volume
+  community.docker.docker_volume:
+    name: paperless-ng-data
+
+- include_role:
+    name: backup
+  vars:
+    volume_name: paperless-ng-data
+
+- name: "Install paperless-ngx"
   community.docker.docker_container:
     name: paperless-ng
-    image: jonaswinkler/paperless-ng
+    image: ghcr.io/paperless-ngx/paperless-ngx
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     log_driver: "json-file"
     log_options: "max-size=10m"
     volumes:
       - paperless-ng-media:/usr/src/paperless/media
+      - paperless-ng-data:/usr/src/paperless/data
     network_mode: default
     networks:
       - name: paperless-ng
@@ -84,3 +103,4 @@
       start_period: 30s
     labels:
       docker-volume-backup.stop-during-backup: "paperless-ng-media"
+      docker-volume-backup.stop-during-backup: "paperless-ng-data"
