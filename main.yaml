@@ -14,6 +14,7 @@
     - {role: fava, tags: "fava"}
     - {role: miniflux, tags: "miniflux"}
     - {role: paperless-ng, tags: "paperless-ng"}
+    - {role: gramps, tags: "gramps"}
     - {role: caddy, tags: "caddy"}
     # tasks:
     # - name: Print all available facts
