@@ -1,0 +1,56 @@
+- name: Create a volume
+  community.docker.docker_volume:
+    name: hass-data
+
+- name: Create Docker network for Home Assistant
+  community.docker.docker_network:
+    name: hass-network
+    state: present
+
+# copy config file to the volume
+- name: Start a container
+  community.docker.docker_container:
+    name: container
+    image: alpine
+    detach: no
+    volumes:
+      - hass-data:/config
+
+- name: Copy over the config
+  ansible.builtin.template:
+    src: "configuration.yaml"
+    dest: "/tmp/configuration.yaml"
+    mode: 0644
+
+- name: Copy into the container
+  command: /usr/local/bin/docker cp /tmp/configuration.yaml container:/config/
+  register: hass_data
+
+- name: Remove the hanging container
+  community.docker.docker_container:
+    name: container
+    image: alpine
+    state: absent
+# end: copy config file to the volume
+
+- name: Run Home Assistant Docker container
+  community.docker.docker_container:
+    name: hass
+    image: ghcr.io/home-assistant/home-assistant:stable
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    networks:
+      - name: hass-network
+    ports:
+      - "8123:8123"
+    volumes:
+      - "hass-data:/config"
+
+- name: Maybe restart
+  community.docker.docker_container:
+    name: hass
+    restart: true
+    container_default_behavior: no_defaults
+  when: hass_data.changed

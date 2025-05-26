@@ -15,7 +15,7 @@
     - {role: miniflux, tags: "miniflux"}
     - {role: paperless-ng, tags: "paperless-ng"}
     - {role: gramps, tags: "gramps"}
-    - {role: caddy, tags: "caddy"}
+    - {role: homeassistant, tags: "hass"}
     # tasks:
     # - name: Print all available facts
     #   ansible.builtin.debug:

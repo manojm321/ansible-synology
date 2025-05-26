@@ -25,8 +25,9 @@
     network_mode: default
     networks:
       - name: monitoring
+      - name: hass-network
     ports:
-      - "8086:8086"
+      - "8086:8086/tcp"
     env:
       # 7 days
       INFLUXD_SESSION_LENGTH: "10080"
@@ -38,5 +39,3 @@
       start_period: 30s
     labels:
       docker-volume-backup.stop-during-backup: "influxdb2"
-    ports:
-      - "8086:8086/tcp"

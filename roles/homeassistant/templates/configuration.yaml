@@ -1,0 +1,13 @@
+media_source:
+
+influxdb:
+  api_version: 2
+  ssl: false
+  host: influxdb
+  port: 8086
+  token: "{{ hass_influxdb_token }}"
+  organization: home
+  bucket: hass
+  tags:
+    source: HA
+  default_measurement: units
