@@ -14,9 +14,7 @@
       - subnet: 192.168.1.0/24
         gateway: 192.168.1.1
         iprange: 192.168.1.192/27
-        aux_addresses:
-          pihole: "{{macvlan_ip_pihole}}"
-          caddy: "{{macvlan_ip_caddy}}"
+
 
 - name: create macvlan
   shell: ip link add macvlan0 link eth1 type macvlan mode bridge
