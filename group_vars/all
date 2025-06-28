@@ -3,6 +3,15 @@
 telegraf_version: "1.26.2"
 telegraf_tar_checksum: "sha256:139b41ba79deadc26a4d73c9e77fcc3b84f847720423a14c1e7ac6cec2275375"
 macvlan_ip: "192.168.1.192"
+
+# InfluxDB configuration
+influxdb_org: "home"
+influxdb_bucket: "default"
+influxdb_host: "192.168.8.101"
+
+# OpenWrt configuration
+openwrt_adguard_port: "3000"
+openwrt_adguard_host: "127.0.0.1"
 telegraf_influxdb_token: !vault |
           $ANSIBLE_VAULT;1.1;AES256
           34376537366536613330663831383437633030356636303033383737373838306639633939336464

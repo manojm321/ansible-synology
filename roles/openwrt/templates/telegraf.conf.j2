@@ -1,0 +1,77 @@
+# Telegraf Configuration for OpenWrt Router
+
+# Global tags
+[global_tags]
+  role = "router"
+  device_type = "openwrt"
+  router_ip = "{{ inventory_hostname }}"
+
+# Agent configuration
+[agent]
+  interval = "30s"
+  round_interval = true
+  metric_batch_size = 1000
+  metric_buffer_limit = 10000
+  collection_jitter = "5s"
+  flush_interval = "30s"
+  flush_jitter = "5s"
+  precision = ""
+  hostname = ""
+  omit_hostname = false
+
+###############################################################################
+#                            OUTPUT PLUGINS                                  #
+###############################################################################
+
+# InfluxDB v2 output
+[[outputs.influxdb_v2]]
+  urls = ["http://{{ influxdb_host }}:8086"]
+  token = "{{ telegraf_influxdb_token }}"
+  organization = "{{ influxdb_org | default('home') }}"
+  bucket = "default"
+
+###############################################################################
+#                            INPUT PLUGINS                                   #
+###############################################################################
+
+# System metrics
+[[inputs.cpu]]
+  percpu = true
+  totalcpu = true
+  collect_cpu_time = false
+  report_active = false
+
+[[inputs.disk]]
+  ignore_fs = ["tmpfs", "devtmpfs", "devfs", "overlay", "aufs", "squashfs"]
+
+[[inputs.diskio]]
+
+[[inputs.mem]]
+
+[[inputs.net]]
+  interfaces = ["br-lan", "eth0", "eth1", "wlan0", "wlan1"]
+
+[[inputs.netstat]]
+
+[[inputs.processes]]
+
+[[inputs.system]]
+
+[[inputs.kernel]]
+
+# Wireless statistics
+[[inputs.wireless]]
+
+# Network connectivity tests
+[[inputs.ping]]
+  urls = ["8.8.8.8", "1.1.1.1", "{{ influxdb_host }}"]
+  count = 3
+  timeout = 1.0
+  deadline = 10
+
+# AdGuard Home process monitoring
+[[inputs.procstat]]
+  pattern = "AdGuardHome"
+  pid_tag = true
+
+

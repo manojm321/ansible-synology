@@ -1,0 +1,90 @@
+---
+- name: Update OpenWrt package lists
+  ansible.builtin.raw: "opkg update"
+  changed_when: false
+  tags: packages
+
+- name: Check if Python3 is already installed
+  ansible.builtin.raw: "which python3"
+  register: python_check
+  failed_when: false
+  changed_when: false
+  tags: packages
+
+- name: Install Python3 and dependencies
+  ansible.builtin.raw: "opkg install python3"
+  register: python_install
+  changed_when: "'Installing' in python_install.stdout"
+  when: python_check.rc != 0
+  tags: packages
+
+- name: Show Python installation result
+  ansible.builtin.debug:
+    msg: "Python3 installation completed successfully"
+  when: python_check.rc != 0 and python_install is succeeded
+  tags: packages
+
+- name: Install additional useful packages
+  ansible.builtin.raw: "opkg install {{ item }}"
+  register: package_install
+  changed_when: "'Installing' in package_install.stdout"
+  failed_when: false
+  loop:
+    - curl
+    - wget
+    - htop
+    - nano
+    - ca-certificates
+  tags: packages
+
+- name: Verify Python3 installation
+  ansible.builtin.raw: "which python3 && python3 --version"
+  register: python_verify
+  changed_when: false
+  tags: verify
+
+- name: Show Python verification
+  ansible.builtin.debug:
+    var: python_verify.stdout_lines
+  tags: verify
+
+- name: Test Python functionality
+  ansible.builtin.raw: 'python3 -c "import sys; print(\"Python\", sys.version, \"is working!\")"'
+  register: python_test
+  changed_when: false
+  failed_when: false
+  tags: verify
+
+- name: Show Python test result
+  ansible.builtin.debug:
+    var: python_test.stdout_lines
+  when: python_test.rc == 0
+  tags: verify
+
+- name: Create Python symlink for compatibility
+  ansible.builtin.raw: "ln -sf /usr/bin/python3 /usr/bin/python"
+  register: python_symlink
+  changed_when: python_symlink.rc == 0
+  failed_when: false
+  tags: setup
+
+- name: Install pip if available
+  ansible.builtin.raw: "opkg install python3-pip"
+  register: pip_install
+  changed_when: "'Installing' in pip_install.stdout"
+  failed_when: false
+  tags: packages
+
+- name: Show installation summary
+  ansible.builtin.debug:
+    msg: |
+      OpenWrt Python setup completed:
+      - Python3: {{ 'Installed' if python_verify.rc == 0 else 'Failed' }}
+      - Additional packages: curl, wget, htop, nano, ca-certificates
+      - pip: {{ 'Installed' if pip_install.rc == 0 else 'Not available' }}
+  tags: summary
+
+# Include Telegraf configuration
+- name: Configure Telegraf
+  ansible.builtin.include_tasks: telegraf.yaml
+  tags: telegraf

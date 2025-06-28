@@ -1,0 +1,4 @@
+---
+- name: restart telegraf
+  ansible.builtin.raw: "/etc/init.d/telegraf restart"
+  changed_when: false

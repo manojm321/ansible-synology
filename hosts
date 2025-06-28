@@ -5,6 +5,14 @@
 ansible_user=manojm321
 ansible_port=34
 
+[openwrt]
+192.168.8.1
+
+[openwrt:vars]
+ansible_user=root
+ansible_port=2222
+ansible_python_interpreter=/usr/bin/python3
+
 [pi]
 192.168.1.14
 

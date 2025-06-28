@@ -1,6 +1,6 @@
 ---
-- name: Setup synlogy NAS
-  hosts: all
+- name: Setup Synology NAS
+  hosts: nas
   become: true
   roles:
     - {role: system, tags: "system"}
@@ -9,22 +9,24 @@
     - {role: telegraf, tags: "telegraf"}
     - {role: grafana, tags: "grafana"}
     - {role: influxdb, tags: "influxdb"}
-    - {role: pihole, tags: "pihole"}
     - {role: watchtower, tags: "watchtower"}
     - {role: fava, tags: "fava"}
     - {role: miniflux, tags: "miniflux"}
     - {role: paperless-ng, tags: "paperless-ng"}
     - {role: gramps, tags: "gramps"}
     - {role: homeassistant, tags: "hass"}
-    # tasks:
-    # - name: Print all available facts
-    #   ansible.builtin.debug:
-    #     var: ansible_facts
 
-- name: Setup synlogy NAS
-  hosts: pi
+- name: Setup OpenWrt Router
+  hosts: openwrt
   become: true
-  tasks:
-    - name: Print all available facts
-      ansible.builtin.debug:
-        var: ansible_facts
+  roles:
+    - {role: openwrt, tags: "openwrt"}
+
+# Uncomment and configure as needed
+# - name: Setup Raspberry Pi
+#   hosts: pi
+#   become: true
+#   tasks:
+#     - name: Print all available facts
+#       ansible.builtin.debug:
+#         var: ansible_facts

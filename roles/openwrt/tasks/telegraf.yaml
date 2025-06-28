@@ -1,0 +1,36 @@
+---
+# Telegraf installation and configuration for OpenWrt
+
+- name: Check if Telegraf is available in OpenWrt packages
+  ansible.builtin.raw: "opkg list | grep telegraf"
+  register: telegraf_available
+  changed_when: false
+  failed_when: false
+  tags: telegraf
+
+- name: Install Telegraf from OpenWrt packages
+  ansible.builtin.raw: "opkg install telegraf"
+  register: telegraf_install
+  changed_when: "'Installing' in telegraf_install.stdout"
+  when: telegraf_available.rc == 0
+  tags: telegraf
+
+- name: Create Telegraf directories
+  ansible.builtin.raw: "mkdir -p /etc/telegraf /var/log/telegraf"
+  changed_when: false
+  tags: telegraf
+
+- name: Create Telegraf configuration
+  ansible.builtin.template:
+    src: telegraf.conf.j2
+    dest: /etc/telegraf/telegraf.conf
+    mode: '0644'
+  notify: restart telegraf
+  tags: telegraf
+
+- name: Enable and start Telegraf service
+  ansible.builtin.service:
+    name: telegraf
+    enabled: yes
+    state: started
+  tags: telegraf
