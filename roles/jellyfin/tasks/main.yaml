@@ -1,0 +1,44 @@
+---
+- name: Create Jellyfin volumes
+  community.docker.docker_volume:
+    name: "{{ item }}"
+  loop:
+    - jellyfin-config
+    - jellyfin-cache
+
+- include_role:
+    name: backup
+  vars:
+    volume_name: jellyfin-config
+
+- name: Create Jellyfin container
+  community.docker.docker_container:
+    name: jellyfin
+    image: jellyfin/jellyfin:latest
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    volumes:
+      - jellyfin-config:/config
+      - jellyfin-cache:/cache
+      - "/volume1/movies:/media/movies:ro"
+      - "/volume1/tv_series:/media/tv_series:ro"
+      - "/volume1/music:/media/music:ro"
+      - "/volume1/photo:/media/photos:ro"
+    network_mode: default
+    ports:
+      - "8096:8096/tcp"
+      - "7359:7359/udp"  # For DLNA autodiscovery
+
+    # Enable Intel Quick Sync hardware acceleration
+    devices:
+      - "/dev/dri:/dev/dri"
+    # Run as root to access root-owned media directories
+    user: "0:0"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8096/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

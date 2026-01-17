@@ -15,6 +15,7 @@
     - {role: paperless-ng, tags: "paperless-ng"}
     - {role: gramps, tags: "gramps"}
     - {role: homeassistant, tags: "hass"}
+    - {role: jellyfin, tags: "jellyfin"}
 
 - name: Setup OpenWrt Router
   hosts: openwrt
