@@ -2,3 +2,4 @@
 dependencies:
   - role: docker
   - role: telegraf
+  - role: nginx-proxy-manager

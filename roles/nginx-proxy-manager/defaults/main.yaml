@@ -1,0 +1,13 @@
+---
+# Default proxy host settings for all services
+nginx_proxy_manager_defaults:
+  # Common proxy settings applied to all services
+  access_list_id: 0
+  certificate_id: 0
+  ssl_forced: false
+  caching_enabled: false
+  block_exploits: true
+  allow_websocket_upgrade: true
+  http2_support: true
+  enabled: true
+  forward_scheme: "http"

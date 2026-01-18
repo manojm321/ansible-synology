@@ -1,0 +1,11 @@
+---
+# Jellyfin service configuration
+jellyfin:
+  # Container configuration
+  image: "jellyfin/jellyfin:latest"
+  container_port: 8096
+  udp_port: 7359
+
+  # Service-specific proxy configuration
+  subdomain: "jellyfin"
+  proxy_port: 8096

@@ -17,6 +17,7 @@
     - {role: homeassistant, tags: "hass"}
     - {role: jellyfin, tags: "jellyfin"}
     - {role: pinchflat, tags: "pinchflat"}
+    - {role: nginx-proxy-manager, tags: "nginx-proxy-manager"}
 
 - name: Setup OpenWrt Router
   hosts: openwrt

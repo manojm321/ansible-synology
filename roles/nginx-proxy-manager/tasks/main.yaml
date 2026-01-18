@@ -1,0 +1,68 @@
+---
+- name: Create nginx-proxy-manager volumes
+  community.docker.docker_volume:
+    name: "{{ item }}"
+  loop:
+    - nginx-proxy-manager-data
+    - nginx-proxy-manager-letsencrypt
+
+- include_role:
+    name: backup
+  vars:
+    volume_name: nginx-proxy-manager-data
+
+- name: Create nginx-proxy-manager container
+  community.docker.docker_container:
+    name: nginx-proxy-manager
+    image: docker.io/jc21/nginx-proxy-manager:latest
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    volumes:
+      - nginx-proxy-manager-data:/data
+      - nginx-proxy-manager-letsencrypt:/etc/letsencrypt
+    network_mode: default
+    ports:
+      - "80:80/tcp"
+      - "88:81/tcp"
+    env:
+      TZ: "Asia/Kolkata"
+      INITIAL_ADMIN_EMAIL: "{{ nginx_proxy_manager.admin_email }}"
+      INITIAL_ADMIN_PASSWORD: "{{ nginx_proxy_manager.admin_password }}"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:81/api"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+      docker-volume-backup.stop-during-backup: "nginx-proxy-manager-data"
+
+- name: Wait for nginx-proxy-manager to be ready
+  uri:
+    url: "http://{{ ansible_default_ipv4.address }}:88/api"
+    method: GET
+    status_code: 200
+  register: npm_ready
+  until: npm_ready.status == 200
+  retries: 30
+  delay: 10
+
+# Get JWT token and cache it for other roles to use
+- name: Get JWT token from nginx-proxy-manager
+  uri:
+    url: "{{ nginx_proxy_manager.base_url }}/api/tokens"
+    method: POST
+    body_format: json
+    body:
+      identity: "{{ nginx_proxy_manager.admin_email }}"
+      secret: "{{ nginx_proxy_manager.admin_password }}"
+    status_code: [200]
+  register: npm_token_result
+
+- name: Cache JWT token for other roles
+  set_fact:
+    nginx_proxy_manager_jwt_token: "{{ npm_token_result.json.token }}"
+    cacheable: yes

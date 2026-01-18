@@ -15,7 +15,7 @@
 - name: Create Jellyfin container
   community.docker.docker_container:
     name: jellyfin
-    image: jellyfin/jellyfin:latest
+    image: "{{ jellyfin.image }}"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     log_driver: "json-file"
@@ -30,8 +30,8 @@
       - youtube-downloads:/media/youtube:ro
     network_mode: default
     ports:
-      - "8096:8096/tcp"
-      - "7359:7359/udp"  # For DLNA autodiscovery
+      - "{{ jellyfin.container_port }}:{{ jellyfin.container_port }}/tcp"
+      - "{{ jellyfin.udp_port }}:{{ jellyfin.udp_port }}/udp"  # For DLNA autodiscovery
 
     # Enable Intel Quick Sync hardware acceleration
     devices:
@@ -39,7 +39,7 @@
     # Run as root to access root-owned media directories
     user: "0:0"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8096/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:{{ jellyfin.container_port }}/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -47,3 +47,33 @@
     labels:
       com.centurylinklabs.watchtower.enable: "true"
       docker-volume-backup.stop-during-backup: "jellyfin-config"
+
+# Configure nginx-proxy-manager proxy host
+- name: Configure proxy host for Jellyfin
+  uri:
+    url: "{{ nginx_proxy_manager.base_url }}/api/nginx/proxy-hosts"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ nginx_proxy_manager_jwt_token }}"
+    body_format: json
+    body:
+      domain_names: ["{{ jellyfin.subdomain }}{{ nginx_proxy_manager.domain_suffix }}"]
+      forward_host: "{{ ansible_default_ipv4.address }}"
+      forward_port: "{{ jellyfin.proxy_port }}"
+      forward_scheme: "{{ nginx_proxy_manager_defaults.forward_scheme }}"
+      access_list_id: "{{ nginx_proxy_manager_defaults.access_list_id }}"
+      certificate_id: "{{ nginx_proxy_manager_defaults.certificate_id }}"
+      ssl_forced: "{{ nginx_proxy_manager_defaults.ssl_forced }}"
+      caching_enabled: "{{ nginx_proxy_manager_defaults.caching_enabled }}"
+      block_exploits: "{{ nginx_proxy_manager_defaults.block_exploits }}"
+      allow_websocket_upgrade: "{{ nginx_proxy_manager_defaults.allow_websocket_upgrade }}"
+      http2_support: "{{ nginx_proxy_manager_defaults.http2_support }}"
+      enabled: "{{ nginx_proxy_manager_defaults.enabled }}"
+    status_code: [200, 201, 400, 409]  # 400 = domain already in use, 409 = already exists
+  register: jellyfin_proxy_result
+  failed_when:
+    - jellyfin_proxy_result.status not in [200, 201, 400, 409]
+    - not (jellyfin_proxy_result.status == 400 and 'already in use' in jellyfin_proxy_result.json.error.message)
+  changed_when: jellyfin_proxy_result.status in [200, 201]
+
+
