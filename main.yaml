@@ -16,6 +16,7 @@
     - {role: gramps, tags: "gramps"}
     - {role: homeassistant, tags: "hass"}
     - {role: jellyfin, tags: "jellyfin"}
+    - {role: pinchflat, tags: "pinchflat"}
 
 - name: Setup OpenWrt Router
   hosts: openwrt

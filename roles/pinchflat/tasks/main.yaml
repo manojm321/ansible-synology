@@ -1,0 +1,39 @@
+---
+- name: Create Pinchflat volumes
+  community.docker.docker_volume:
+    name: "{{ item }}"
+  loop:
+    - pinchflat-config
+    - youtube-downloads
+
+- include_role:
+    name: backup
+  vars:
+    volume_name: pinchflat-config
+
+- name: Create Pinchflat container
+  community.docker.docker_container:
+    name: pinchflat
+    image: ghcr.io/kieraneglin/pinchflat:latest
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    volumes:
+      - pinchflat-config:/config
+      - youtube-downloads:/downloads
+    network_mode: default
+    ports:
+      - "8945:8945/tcp"
+    env:
+      TZ: "Asia/Kolkata"
+      UMASK: "022"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8945/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+      docker-volume-backup.stop-during-backup: "pinchflat-config"

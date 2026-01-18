@@ -5,6 +5,7 @@
   loop:
     - jellyfin-config
     - jellyfin-cache
+    - youtube-downloads
 
 - include_role:
     name: backup
@@ -26,6 +27,7 @@
       - "/volume1/tv_series:/media/tv_series:ro"
       - "/volume1/music:/media/music:ro"
       - "/volume1/photo:/media/photos:ro"
+      - youtube-downloads:/media/youtube:ro
     network_mode: default
     ports:
       - "8096:8096/tcp"
@@ -42,3 +44,6 @@
       timeout: 10s
       retries: 3
       start_period: 40s
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+      docker-volume-backup.stop-during-backup: "jellyfin-config"
