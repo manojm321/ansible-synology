@@ -1,0 +1,7 @@
+---
+# InfluxDB service configuration
+influxdb:
+  image: "influxdb"
+  container_port: 8086
+  subdomain: "influxdb"
+  proxy_port: 8086

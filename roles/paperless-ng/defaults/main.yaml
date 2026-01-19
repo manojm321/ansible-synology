@@ -1,0 +1,10 @@
+---
+# Paperless-ng service configuration
+paperless_ng:
+  # Container configuration
+  image: "ghcr.io/paperless-ngx/paperless-ngx:latest"
+  container_port: 8000
+  
+  # Service-specific proxy configuration
+  subdomain: "docs"
+  proxy_port: 8000

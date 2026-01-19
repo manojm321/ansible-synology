@@ -1,0 +1,10 @@
+---
+# Grafana service configuration
+grafana:
+  # Container configuration
+  image: "grafana/grafana"
+  container_port: 3000
+  
+  # Service-specific proxy configuration
+  subdomain: "grafana"
+  proxy_port: 3000

@@ -14,7 +14,7 @@
 - name: Create Pinchflat container
   community.docker.docker_container:
     name: pinchflat
-    image: ghcr.io/kieraneglin/pinchflat:latest
+    image: "{{ pinchflat.image }}"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     log_driver: "json-file"
@@ -24,12 +24,12 @@
       - youtube-downloads:/downloads
     network_mode: default
     ports:
-      - "8945:8945/tcp"
+      - "{{ pinchflat.container_port }}:{{ pinchflat.container_port }}/tcp"
     env:
       TZ: "Asia/Kolkata"
       UMASK: "022"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8945/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:{{ pinchflat.container_port }}/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -37,3 +37,10 @@
     labels:
       com.centurylinklabs.watchtower.enable: "true"
       docker-volume-backup.stop-during-backup: "pinchflat-config"
+
+# Configure nginx-proxy-manager proxy host
+- include_tasks: roles/nginx-proxy-manager/tasks/configure-proxy-host.yaml
+  vars:
+    service_name: "pinchflat"
+    service_subdomain: "{{ pinchflat.subdomain }}"
+    service_port: "{{ pinchflat.proxy_port }}"

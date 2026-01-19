@@ -1,0 +1,10 @@
+---
+# Pinchflat service configuration
+pinchflat:
+  # Container configuration
+  image: "ghcr.io/kieraneglin/pinchflat:latest"
+  container_port: 8945
+  
+  # Service-specific proxy configuration
+  subdomain: "youtube"
+  proxy_port: 8945

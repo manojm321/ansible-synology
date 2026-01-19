@@ -49,31 +49,10 @@
       docker-volume-backup.stop-during-backup: "jellyfin-config"
 
 # Configure nginx-proxy-manager proxy host
-- name: Configure proxy host for Jellyfin
-  uri:
-    url: "{{ nginx_proxy_manager.base_url }}/api/nginx/proxy-hosts"
-    method: POST
-    headers:
-      Authorization: "Bearer {{ nginx_proxy_manager_jwt_token }}"
-    body_format: json
-    body:
-      domain_names: ["{{ jellyfin.subdomain }}{{ nginx_proxy_manager.domain_suffix }}"]
-      forward_host: "{{ ansible_default_ipv4.address }}"
-      forward_port: "{{ jellyfin.proxy_port }}"
-      forward_scheme: "{{ nginx_proxy_manager_defaults.forward_scheme }}"
-      access_list_id: "{{ nginx_proxy_manager_defaults.access_list_id }}"
-      certificate_id: "{{ nginx_proxy_manager_defaults.certificate_id }}"
-      ssl_forced: "{{ nginx_proxy_manager_defaults.ssl_forced }}"
-      caching_enabled: "{{ nginx_proxy_manager_defaults.caching_enabled }}"
-      block_exploits: "{{ nginx_proxy_manager_defaults.block_exploits }}"
-      allow_websocket_upgrade: "{{ nginx_proxy_manager_defaults.allow_websocket_upgrade }}"
-      http2_support: "{{ nginx_proxy_manager_defaults.http2_support }}"
-      enabled: "{{ nginx_proxy_manager_defaults.enabled }}"
-    status_code: [200, 201, 400, 409]  # 400 = domain already in use, 409 = already exists
-  register: jellyfin_proxy_result
-  failed_when:
-    - jellyfin_proxy_result.status not in [200, 201, 400, 409]
-    - not (jellyfin_proxy_result.status == 400 and 'already in use' in jellyfin_proxy_result.json.error.message)
-  changed_when: jellyfin_proxy_result.status in [200, 201]
+- include_tasks: roles/nginx-proxy-manager/tasks/configure-proxy-host.yaml
+  vars:
+    service_name: "jellyfin"
+    service_subdomain: "{{ jellyfin.subdomain }}"
+    service_port: "{{ jellyfin.proxy_port }}"
 
 

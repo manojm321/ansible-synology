@@ -15,7 +15,7 @@
 - name: Influxdb container
   community.docker.docker_container:
     name: influxdb
-    image: "influxdb"
+    image: "{{ influxdb.image }}"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     log_driver: "json-file"
@@ -27,15 +27,23 @@
       - name: monitoring
       - name: hass-network
     ports:
-      - "8086:8086/tcp"
+      - "{{ influxdb.container_port }}:{{ influxdb.container_port }}/tcp"
     env:
       # 7 days
       INFLUXD_SESSION_LENGTH: "10080"
     healthcheck:
-      test: ["CMD", "curl", "http://localhost:8086/ping"]
+      test: ["CMD", "curl", "http://localhost:{{ influxdb.container_port }}/ping"]
       interval: 10s
       timeout: 10s
       retries: 3
       start_period: 30s
     labels:
       docker-volume-backup.stop-during-backup: "influxdb2"
+
+# Configure nginx-proxy-manager proxy host
+- include_tasks: roles/nginx-proxy-manager/tasks/configure-proxy-host.yaml
+  vars:
+    service_name: "influxdb"
+    service_subdomain: "{{ influxdb.subdomain }}"
+    service_port: "{{ influxdb.proxy_port }}"
+  when: nginx_proxy_manager.enabled | default(false)

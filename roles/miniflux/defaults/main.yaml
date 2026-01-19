@@ -1,0 +1,11 @@
+---
+# Miniflux service configuration
+miniflux:
+  # Container configuration
+  image: "miniflux/miniflux"
+  container_port: 8080
+  host_port: 8081
+
+  # Service-specific proxy configuration
+  subdomain: "miniflux"
+  proxy_port: 8081

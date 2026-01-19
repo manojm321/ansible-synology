@@ -1,0 +1,4 @@
+---
+dependencies:
+  - role: nginx-proxy-manager
+    when: nginx_proxy_manager.enabled | default(false)

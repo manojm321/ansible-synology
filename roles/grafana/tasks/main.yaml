@@ -44,7 +44,7 @@
 - name: Grafana container
   community.docker.docker_container:
     name: grafana
-    image: "grafana/grafana"
+    image: "{{ grafana.image }}"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     log_driver: "json-file"
@@ -59,7 +59,7 @@
       - name: monitoring
       - name: macvlan
     ports:
-      - "3000:3000/tcp"
+      - "{{ grafana.container_port }}:{{ grafana.container_port }}/tcp"
 
 - name: Maybe restart grafana
   community.docker.docker_container:
@@ -67,3 +67,10 @@
     restart: true
     container_default_behavior: no_defaults
   when: grafana_config.changed
+
+# Configure nginx-proxy-manager proxy host
+- include_tasks: roles/nginx-proxy-manager/tasks/configure-proxy-host.yaml
+  vars:
+    service_name: "grafana"
+    service_subdomain: "{{ grafana.subdomain }}"
+    service_port: "{{ grafana.proxy_port }}"

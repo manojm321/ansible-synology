@@ -73,7 +73,7 @@
 - name: "Install paperless-ngx"
   community.docker.docker_container:
     name: paperless-ng
-    image: ghcr.io/paperless-ngx/paperless-ngx
+    image: "{{ paperless_ng.image }}"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     log_driver: "json-file"
@@ -86,7 +86,7 @@
       - name: paperless-ng
       - name: macvlan
     ports:
-      - "8000:8000"
+      - "{{ paperless_ng.container_port }}:{{ paperless_ng.container_port }}"
     env:
       PAPERLESS_REDIS: redis://paperless-ng-broker:6379
       PAPERLESS_DBHOST: paperless-ng-db
@@ -104,3 +104,10 @@
     labels:
       docker-volume-backup.stop-during-backup: "paperless-ng-media"
       docker-volume-backup.stop-during-backup: "paperless-ng-data"
+
+# Configure nginx-proxy-manager proxy host
+- include_tasks: roles/nginx-proxy-manager/tasks/configure-proxy-host.yaml
+  vars:
+    service_name: "paperless-ng"
+    service_subdomain: "{{ paperless_ng.subdomain }}"
+    service_port: "{{ paperless_ng.proxy_port }}"

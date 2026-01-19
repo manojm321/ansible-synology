@@ -1,0 +1,53 @@
+---
+# Reusable proxy host configuration task
+# Usage: include_tasks: roles/nginx-proxy-manager/tasks/configure-proxy-host.yaml
+#        vars:
+#          service_name: "jellyfin"
+#          service_subdomain: "jellyfin"  # optional, defaults to service_name
+#          service_port: 8096
+
+# Ensure JWT token is available (get it if not cached)
+- name: Get JWT token from nginx-proxy-manager
+  uri:
+    url: "{{ nginx_proxy_manager.base_url }}/api/tokens"
+    method: POST
+    body_format: json
+    body:
+      identity: "{{ nginx_proxy_manager.admin_email }}"
+      secret: "{{ nginx_proxy_manager.admin_password }}"
+    status_code: [200]
+  register: npm_token_result
+  when: nginx_proxy_manager_jwt_token is not defined
+
+- name: Cache JWT token for other roles
+  set_fact:
+    nginx_proxy_manager_jwt_token: "{{ npm_token_result.json.token }}"
+    cacheable: yes
+  when: nginx_proxy_manager_jwt_token is not defined
+
+- name: "Configure proxy host for {{ service_name | title }}"
+  uri:
+    url: "{{ nginx_proxy_manager.base_url }}/api/nginx/proxy-hosts"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ nginx_proxy_manager_jwt_token }}"
+    body_format: json
+    body:
+      domain_names: ["{{ service_subdomain | default(service_name) }}{{ nginx_proxy_manager.domain_suffix }}"]
+      forward_host: "{{ ansible_default_ipv4.address }}"
+      forward_port: "{{ service_port }}"
+      forward_scheme: "{{ nginx_proxy_manager_defaults.forward_scheme }}"
+      access_list_id: "{{ nginx_proxy_manager_defaults.access_list_id }}"
+      certificate_id: "{{ nginx_proxy_manager_defaults.certificate_id }}"
+      ssl_forced: "{{ nginx_proxy_manager_defaults.ssl_forced }}"
+      caching_enabled: "{{ nginx_proxy_manager_defaults.caching_enabled }}"
+      block_exploits: "{{ nginx_proxy_manager_defaults.block_exploits }}"
+      allow_websocket_upgrade: "{{ nginx_proxy_manager_defaults.allow_websocket_upgrade }}"
+      http2_support: "{{ nginx_proxy_manager_defaults.http2_support }}"
+      enabled: "{{ nginx_proxy_manager_defaults.enabled }}"
+    status_code: [200, 201, 400, 409]  # 400 = domain already in use
+  register: proxy_result
+  failed_when: 
+    - proxy_result.status not in [200, 201, 400, 409]
+    - not (proxy_result.status == 400 and 'already in use' in proxy_result.json.error.message)
+  changed_when: proxy_result.status in [200, 201]
