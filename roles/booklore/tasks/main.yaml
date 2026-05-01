@@ -1,0 +1,104 @@
+---
+- name: Create Booklore network
+  community.docker.docker_network:
+    name: booklore-network
+
+- name: Create Booklore volumes
+  community.docker.docker_volume:
+    name: "{{ item }}"
+  loop:
+    - booklore-data
+    - booklore-books
+    - booklore-bookdrop
+    - booklore-mariadb-data
+
+- include_role:
+    name: backup
+  vars:
+    volume_name: booklore-data
+
+- include_role:
+    name: backup
+  vars:
+    volume_name: booklore-mariadb-data
+
+- name: MariaDB container for Booklore
+  community.docker.docker_container:
+    name: booklore-mariadb
+    image: "lscr.io/linuxserver/mariadb:11.4.8"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    volumes:
+      - "booklore-mariadb-data:/var/lib/mysql"
+    network_mode: default
+    networks:
+      - name: booklore-network
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "{{ booklore.timezone }}"
+      MYSQL_ROOT_PASSWORD: "{{ booklore_db_root_password }}"
+      MYSQL_DATABASE: "{{ booklore.db_name }}"
+      MYSQL_USER: "{{ booklore.db_user }}"
+      MYSQL_PASSWORD: "{{ booklore_db_password }}"
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    labels:
+      docker-volume-backup.stop-during-backup: "booklore-mariadb-data"
+
+- name: Booklore container
+  community.docker.docker_container:
+    name: booklore
+    image: "{{ booklore.image }}"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    log_driver: "json-file"
+    log_options: "max-size=10m"
+    volumes:
+      - "booklore-data:/app/data"
+      - "booklore-books:/books"
+      - "booklore-bookdrop:/bookdrop"
+    network_mode: default
+    ports:
+      - "{{ booklore.host_port }}:{{ booklore.container_port }}/tcp"
+      - "8002:8080/tcp"
+    networks:
+      - name: booklore-network
+    env:
+      USER_ID: "0"
+      GROUP_ID: "0"
+      TZ: "{{ booklore.timezone }}"
+      DATABASE_URL: "jdbc:mariadb://booklore-mariadb:3306/{{ booklore.db_name }}"
+      DATABASE_USERNAME: "{{ booklore.db_user }}"
+      DATABASE_PASSWORD: "{{ booklore_db_password }}"
+      BOOKLORE_PORT: "{{ booklore.container_port }}"
+      SWAGGER_ENABLED: "true"
+
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:{{ booklore.container_port }}/api/v1/healthcheck"]
+      interval: 60s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+      docker-volume-backup.stop-during-backup: "booklore-data"
+
+# Configure nginx-proxy-manager proxy host
+- include_tasks: roles/nginx-proxy-manager/tasks/configure-proxy-host.yaml
+  vars:
+    service_name: "booklore"
+    service_subdomain: "{{ booklore.subdomain }}"
+    service_port: "{{ booklore.proxy_port }}"
+
+# Configure nginx-proxy-manager proxy host for Swagger UI
+- include_tasks: roles/nginx-proxy-manager/tasks/configure-proxy-host.yaml
+  vars:
+    service_name: "booklore-swagger"
+    service_subdomain: "booklore-api"
+    service_port: "8002"

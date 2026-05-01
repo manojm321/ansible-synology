@@ -1,0 +1,18 @@
+---
+# Booklore service configuration
+booklore:
+  # Container configuration
+  image: "booklore/booklore:latest"
+  container_port: 6060
+  host_port: 6060
+
+  # Service-specific proxy configuration
+  subdomain: "booklore"
+  proxy_port: 6060
+
+  # Database configuration
+  db_user: "booklore"
+  db_name: "booklore"
+
+  # Application settings
+  timezone: "Asia/Kolkata"
